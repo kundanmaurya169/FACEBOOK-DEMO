@@ -1,0 +1,41 @@
+# Backend node_modules
+/backend/node_modules
+
+# Frontend node_modules
+/frontend/node_modules
+
+# Optional npm/yarn cache directories
+/backend/npm-debug.log*
+/frontend/npm-debug.log*
+/backend/yarn-debug.log*
+/frontend/yarn-debug.log*
+/backend/yarn-error.log*
+/frontend/yarn-error.log*
+
+# Environment files
+/backend/.env
+/frontend/.env
+
+# Logs
+/backend/logs
+/frontend/logs
+/backend/*.log
+/frontend/*.log
+
+# Coverage
+/backend/coverage
+/frontend/coverage
+*.lcov
+
+# Production build output from React
+/frontend/build
+
+# Miscellaneous
+.DS_Store
+*.swp
+.vscode
+.idea
+*.iml
+
+# System files
+.DS_Store
