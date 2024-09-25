@@ -9,6 +9,7 @@ const userRoutes = require('./routes/userRouters.js');
 const postRoutes = require('./routes/postRoutes.js');
 const commentRoutes= require('./routes/commentRoutes.js');
 const likeRoutes = require('./routes/likeRoutes.js');
+const friendRoutes= require('./routes/friendRoutes.js');
 
 // Initialize Express app
 const app = express();
@@ -26,6 +27,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);
 app.use('/api/comment', commentRoutes);
 app.use('/api/like', likeRoutes);
+app.use('/api/friend', friendRoutes);
 
 // Health check route
 app.get('/', (req, res) => {
