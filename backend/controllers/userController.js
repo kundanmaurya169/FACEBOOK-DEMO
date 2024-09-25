@@ -62,6 +62,15 @@ exports.loginUser = async (req, res) => {
     }
 };
 
+// LogOut user
+exports.logout = (req, res) => {
+    // Clear the cookie storing the JWT token
+    res.clearCookie('token');
+    
+    // Send a response indicating success
+    return res.status(200).json({ message: 'Logged out successfully' });
+};
+
 
 // Get user profile
 exports.getUserProfile = async (req, res) => {
