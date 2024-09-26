@@ -52,9 +52,14 @@ exports.loginUser = async (req, res) => {
     const token = user.generateAuthToken();
 
          // Send the token in a cookie (adjust the options as necessary)
-    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+    res.cookie('token', token, {
+        maxAge: 3600000,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+    });
         // Send the token to the client
-        res.send({ token });
+        res.status(200).json({ message: 'Login successful' });
 
     } catch (error) {
         console.error('Error during login:', error);
@@ -65,7 +70,7 @@ exports.loginUser = async (req, res) => {
 // LogOut user
 exports.logout = (req, res) => {
     // Clear the cookie storing the JWT token
-    res.clearCookie('token');
+    res.Cookie('token',);
     
     // Send a response indicating success
     return res.status(200).json({ message: 'Logged out successfully' });

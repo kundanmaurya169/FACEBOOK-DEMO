@@ -8,8 +8,8 @@ const auth = require('../middleware/authMiddleware.js');
 router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
 router.post('/logout', userController.logout);
-router.get('/profile/:userId', auth, userController.getUserProfile); // Add auth middleware
-router.put('/profile/:userId', auth, userController.updateUserProfile); // Add auth middleware
-router.delete('/profile/:userId', auth, userController.deleteUser); // 
+router.get('/profile', auth, userController.getUserProfile); // Add auth middleware
+router.put('/profile', auth, userController.updateUserProfile); // Add auth middleware
+router.delete('/profile', auth, userController.deleteUser); // 
 
 module.exports = router;
