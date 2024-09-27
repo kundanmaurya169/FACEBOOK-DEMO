@@ -5,12 +5,13 @@ const jwt = require('jsonwebtoken');
 // Register a new user
 exports.registerUser = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { name, phone, email, password } = req.body;
+        console.log(name,phone,email,password);
 
         // Check if user already exists
-        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+        const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
         if (existingUser) {
-            return res.status(400).json({ message: 'Username or Email already exists' });
+            return res.status(400).json({ message: 'phone or Email already exists' });
         }
 
         // Hash the password before saving
@@ -18,7 +19,7 @@ exports.registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create and save the new user
-        const newUser = new User({ username, email, password:hashedPassword });
+        const newUser = new User({ name, phone, email, password:hashedPassword });
         await newUser.save();
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
@@ -29,16 +30,19 @@ exports.registerUser = async (req, res) => {
 // Login user
 
 exports.loginUser = async (req, res) => {
-    const { email, password } = req.body;
+    const { login, password } = req.body;
 
     // Check for empty fields
-    if (!email || !password) {
+    if (!login || !password) {
         return res.status(400).send('Email and password are required.');
     }
 
     try {
-        // Find user by email
-        const user = await User.findOne({ email });
+         // Find user by email or phone
+         const user = await User.findOne({
+            $or: [{ email: login }, { phone: login }] // Search by email or phone
+        });
+
         if (!user) {
             return res.status(400).send('Invalid login credentials.');
         }
@@ -51,15 +55,16 @@ exports.loginUser = async (req, res) => {
          // Generate the JWT token
     const token = user.generateAuthToken();
 
-         // Send the token in a cookie (adjust the options as necessary)
-    res.cookie('token', token, {
-        maxAge: 3600000,
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+       // Send the token in a cookie (adjust the options as necessary)
+       res.cookie('token', token, { 
+        maxAge: 3600000, // 1 hour in milliseconds
+        httpOnly: true, // Prevents JavaScript access to the cookie
+        secure: process.env.NODE_ENV === 'production', // Use true in production for HTTPS
+        sameSite: 'Strict' // Adjust as needed for your application
     });
-        // Send the token to the client
-        res.status(200).json({ message: 'Login successful' });
+
+    // Optionally, send the token in the response body
+    return res.status(200).send({ message: 'Login successful', token });
 
     } catch (error) {
         console.error('Error during login:', error);
@@ -77,11 +82,9 @@ exports.logout = (req, res) => {
 // Get user profile
 exports.getUserProfile = async (req, res) => {
     try {
-        // Option 1: Get user by ID from request parameter
-        const userId = req.params.userId;
 
         // Option 2: Get the authenticated user (if using authentication)
-        // const userId = req.user._id;
+        const userId = req.user._id;
 
         const user = await User.findById(userId).select('-password -token'); // Exclude sensitive fields
 
@@ -98,11 +101,11 @@ exports.getUserProfile = async (req, res) => {
 // Update user profile
 exports.updateUserProfile = async (req, res) => {
     try {
-        const { phone, email } = req.body;
+        const { name, phone, email } = req.body;
 
         const updatedUser = await User.findByIdAndUpdate(
-            req.params.userId,
-            { phone, email },
+            req.user._id,
+            { name, phone, email },
             { new: true }
         );
 
@@ -119,7 +122,7 @@ exports.updateUserProfile = async (req, res) => {
 // Delete user
 exports.deleteUser = async (req, res) => {
     try {
-        const deletedUser = await User.findByIdAndDelete(req.params.userId);
+        const deletedUser = await User.findByIdAndDelete(req.user._id);
         if (!deletedUser) {
             return res.status(404).json({ message: 'User not found' });
         }
