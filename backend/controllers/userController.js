@@ -70,10 +70,7 @@ exports.loginUser = async (req, res) => {
 // LogOut user
 exports.logout = (req, res) => {
     // Clear the cookie storing the JWT token
-    res.Cookie('token',);
-    
-    // Send a response indicating success
-    return res.status(200).json({ message: 'Logged out successfully' });
+    return res.cookie('token',null,{maxAge:new Date(0),secure:true,httpOnly:true}).status(200).json({ message: 'Logged out successfully' });
 };
 
 
@@ -101,11 +98,11 @@ exports.getUserProfile = async (req, res) => {
 // Update user profile
 exports.updateUserProfile = async (req, res) => {
     try {
-        const { username, email } = req.body;
+        const { phone, email } = req.body;
 
         const updatedUser = await User.findByIdAndUpdate(
             req.params.userId,
-            { username, email },
+            { phone, email },
             { new: true }
         );
 

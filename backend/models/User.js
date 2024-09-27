@@ -7,7 +7,7 @@ const { Schema } = mongoose;
 
 // Define the user schema
 const userSchema = new Schema({
-    username: {
+    name: {
         type: String,
         required: true,
     },
@@ -71,7 +71,7 @@ userSchema.statics.findUser = async function (login) {
 // Method to generate JWT token
 userSchema.methods.generateAuthToken = function () {
     // Payload to include in the JWT token (you can customize as needed)
-    const payload = { _id: this._id, username: this.username, email: this.email };
+    const payload = { _id: this._id, name: this.name, email: this.email };
 
     // Generate a JWT token (you should store your JWT secret in an environment variable)
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
