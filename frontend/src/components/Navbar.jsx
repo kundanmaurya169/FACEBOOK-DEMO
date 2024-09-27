@@ -1,21 +1,28 @@
 import { Link } from "react-router-dom"
 import LogoutButton from "./LogoutButton"
 
+
+
 const Navbar = () => {
   return (
-    <div>
-      <header>
-        <nav>
-          <ul>
-            <li><Link to="/feed">Feed</Link></li>
-            <li><Link to="/profile">Profile</Link></li>
-            <li><Link to="/logout">Logout</Link></li>
-          </ul>
+    <nav>
+      <ul className="space-y-4">
+        <li>
+          <Link to="/feed" className="text-blue-600 hover:underline">Feed</Link>
+        </li>
+        <li>
+          <Link to="/profile" className="text-blue-600 hover:underline">Profile</Link>
+        </li>
+        <li>
+          <Link to="/settings" className="text-blue-600 hover:underline">Settings</Link>
+        </li>
+        <li>
           <LogoutButton/>
-        </nav>
-      </header>
-    </div>
-  )
-}
+        </li>
+      </ul>
+    </nav>
+  );
+};
 
-export default Navbar
+export default Navbar;
+

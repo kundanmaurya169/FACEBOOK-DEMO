@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/User'); // Path to your User model
+const Token = require('../models/Token')
 const jwt = require('jsonwebtoken');
 
 // Register a new user
@@ -53,11 +54,19 @@ exports.loginUser = async (req, res) => {
             return res.status(400).send('Invalid login credentials.');
         }
          // Generate the JWT token
-    const token = user.generateAuthToken();
+        const token = user.generateAuthToken();
+
+        // Saving Token in to Token Schema
+        const tokenDocument = new Token({
+            userId: user._id,
+            token,
+            expiresAt: new Date(Date.now() + 3600000), // Set expiration 1 hour from now
+        });
+         await tokenDocument.save();
 
        // Send the token in a cookie (adjust the options as necessary)
        res.cookie('token', token, { 
-        maxAge: 3600000, // 1 hour in milliseconds
+        maxAge: 7*24*60*60*1000, // 1 hour in milliseconds
         httpOnly: true, // Prevents JavaScript access to the cookie
         secure: process.env.NODE_ENV === 'production', // Use true in production for HTTPS
         sameSite: 'Strict' // Adjust as needed for your application
@@ -75,8 +84,16 @@ exports.loginUser = async (req, res) => {
 // LogOut user
 exports.logout = (req, res) => {
     // Clear the cookie storing the JWT token
-    return res.cookie('token',null,{maxAge:new Date(0),secure:true,httpOnly:true}).status(200).json({ message: 'Logged out successfully' });
+    console.log("Logout");
+
+    return res.cookie('token', '', {
+        maxAge: 0, // Set the cookie to expire immediately
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Secure in production, not in development
+        path: '/', // Ensure the same path as the original cookie
+    }).status(200).json({ message: 'Logged out successfully' });
 };
+
 
 
 // Get user profile
@@ -101,19 +118,17 @@ exports.getUserProfile = async (req, res) => {
 // Update user profile
 exports.updateUserProfile = async (req, res) => {
     try {
-        const { name, phone, email } = req.body;
+        const userId = req.user._id; // Get user ID from the request object (assumes user is authenticated)
+        const { name, phone, email } = req.body; // Destructure the data from the request body
 
-        const updatedUser = await User.findByIdAndUpdate(
-            req.user._id,
-            { name, phone, email },
-            { new: true }
-        );
+        // Update the user profile
+        const updatedUser = await User.findByIdAndUpdate(userId, { name, phone, email }, { new: true, runValidators: true });
 
         if (!updatedUser) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.status(200).json({ message: 'User profile updated', updatedUser });
+        res.status(200).json({ message: 'Profile updated successfully', user: updatedUser });
     } catch (error) {
         res.status(500).json({ message: 'Error updating profile', error: error.message });
     }

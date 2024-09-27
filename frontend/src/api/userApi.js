@@ -35,7 +35,7 @@ export const loginUser = async (formData) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            withCredentials:"true" //true
+            withCredentials: true //true
         });
         return response.data; // Return the response data
     } catch (error) {
@@ -48,16 +48,60 @@ export const loginUser = async (formData) => {
 
 
 export const fetchUserInfo = async () => {
-    
-
     try {
-        const response = await axios.get(`${API_URL}/profile`);
-        return response.data; // Return user info
+        const response = await axios.get(`${API_URL}/profile`, {
+            withCredentials: true, // Allows cookies to be sent with the request
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        // Check if response status is OK
+        if (response.status === 200) {
+            const data = response.data;
+            console.log(data);
+            return data; // Return user info
+        } else {
+            console.error('Failed to fetch user info:', response.statusText);
+            return { error: response.statusText }; // Return error message
+        }
     } catch (error) {
         console.error('Failed to fetch user info:', error.message);
-        return null; 
+        return { error: error.message }; // Return error message
     }
 };
+
+export const logout = async () => {
+    try {
+        console.log("in logout function");
+        const response = await axios.get(`${API_URL}/logout`, {
+            withCredentials: true, // Ensure cookies are sent with the request
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        return response; 
+    } catch (error) {
+        console.error('Error:', error.message || 'Something went wrong');
+        throw error; // Optionally rethrow the error for further handling
+    }
+};
+// Api for update profile
+export const updateUserProfile = async (profileData) => {
+    try {
+        const response = await axios.put(`${API_URL}/profile`, profileData, {
+            withCredentials: true, // Allows cookies to be sent with the request
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        return response.data; // Return the response from the server
+    } catch (error) {
+        console.error('Failed to update profile:', error.message);
+        throw error; // Rethrow the error for handling in the component
+    }
+};
+
 
 
 
