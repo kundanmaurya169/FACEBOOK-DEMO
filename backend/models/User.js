@@ -16,6 +16,11 @@ const userSchema = new Schema({
         required: true,
         unique: true,
     },
+    phone: {
+        type: String,
+        required: true,
+        unique: true, // Ensure phone number is unique
+    },
     password: {
         type: String,
         required: true,
@@ -59,11 +64,11 @@ userSchema.method("comparePassword", async function (loginPassword) {
 });
 
 
-// Static method to find user by email or username
+// Static method to find user by email or phone
 userSchema.statics.findUser = async function (login) {
     let user = await this.findOne({ email: login });
     if (!user) {
-        user = await this.findOne({ username: login });
+        user = await this.findOne({ phone: login });
     }
     return user;
 };
@@ -71,7 +76,7 @@ userSchema.statics.findUser = async function (login) {
 // Method to generate JWT token
 userSchema.methods.generateAuthToken = function () {
     // Payload to include in the JWT token (you can customize as needed)
-    const payload = { _id: this._id, name: this.name, email: this.email };
+    const payload = { _id: this._id,name: this.name, phone: this.phone, email: this.email };
 
     // Generate a JWT token (you should store your JWT secret in an environment variable)
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
