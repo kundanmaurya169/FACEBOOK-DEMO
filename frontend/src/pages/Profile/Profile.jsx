@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fetchUserInfo , updateUserProfile} from '../../api/userApi'; // Import API function for fetching user info
 import ProfileModal from './UpdateProfileModel'; // Import the ProfileModal component
+import MyPost from '../Posts/MyPost'
 
 const UserProfile = () => {
   const [user, setUser] = useState(null); // State to hold user info
@@ -58,6 +59,7 @@ const UserProfile = () => {
     getUserInfo(); // Call the function to fetch user info
   }, [updateTrigger]); // Empty dependency array to run only once on component mount
 
+
   if (loading) {
     return <div>Loading...</div>; // Display loading state
   }
@@ -66,10 +68,14 @@ const UserProfile = () => {
     return <div>{error}</div>; // Display error message
   }
 
-  return (
+  return (<>
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">User Profile</h2>
       <div className="space-y-4">
+        {/* <div className="flex justify-between">
+          <span className="font-medium text-gray-600">UserId:</span>
+          <span className="text-gray-800">{user._id}</span>
+        </div> */}
         <div className="flex justify-between">
           <span className="font-medium text-gray-600">Name:</span>
           <span className="text-gray-800">{user.name}</span>
@@ -102,7 +108,12 @@ const UserProfile = () => {
         updatedPhone={updatedPhone}
         setUpdatedPhone={setUpdatedPhone}
       />
+      
     </div>
+
+
+    <MyPost userId={user._id}/>
+    </>
   );
 };
 

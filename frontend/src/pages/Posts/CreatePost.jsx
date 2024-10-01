@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createPost } from "../../api/postApi";
-// import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const CreatePost = () => {
   const [title, setTitle] = useState("");
@@ -9,7 +9,7 @@ const CreatePost = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -61,7 +61,7 @@ const CreatePost = () => {
       setImage(null);
 
       // Navigate to the feed after successful post creation
-      // navigate("/feed"); // Change '/feed' to your actual feed route
+      navigate("/feed"); // render to feed 
       return result;
     } catch (error) {
       setError(

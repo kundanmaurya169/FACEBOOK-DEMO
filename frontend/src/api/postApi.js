@@ -49,4 +49,37 @@ export const fetchPosts = async () => {
         throw error; // Rethrow the error for handling in the calling function
     }
 };
+// delete post by postId
+export const deletePost = async (postId) => {
+    const token = localStorage.getItem('token'); // Retrieve token from local storage
+    try {
+        const response = await axios.delete(`${API_URL}${postId}`, {
+            withCredentials: true, // Include cookies if necessary
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`, // Include the token in the Authorization header
+            },
+        });
+        return response.data; // Return the response data, which may contain a success message
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        throw error; // Rethrow the error for handling in the calling function
+    }
+};
 
+export const fetchPostsByUserId = async (userId) => {
+    const token = localStorage.getItem('token'); // Retrieve token from local storage
+    try {
+        const response = await axios.get(`${API_URL}/user/${userId}`, {
+            withCredentials: true, // Include cookies if necessary
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`, // Include the token in the Authorization header
+            },
+        });
+        return response.data; // Return the posts data from the response
+    } catch (error) {
+        console.error('Error fetching posts by user ID:', error);
+        throw error; // Rethrow the error for handling in the calling function
+    }
+};

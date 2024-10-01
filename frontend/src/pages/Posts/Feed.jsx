@@ -31,9 +31,9 @@ const Feed = () => {
   }
 
 return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className="bg-gray-100">
         <h1 className="text-2xl font-bold bg-slate-500 mb-4 text-center">Feed</h1>
-        <div className="flex flex-wrap justify-center">
+        <div className="container mx-auto p-4 pt-6 md:p-6 lg:p-12">
         <PostList posts={posts} />
             
         </div>

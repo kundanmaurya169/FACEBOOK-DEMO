@@ -26,7 +26,7 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="bg-white  rounded-lg p-8 w-75">
         <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700" htmlFor="phone">
-                        login
+                        Login
                     </label>
                     <input
                         type="text"

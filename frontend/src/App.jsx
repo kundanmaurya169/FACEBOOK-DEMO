@@ -10,6 +10,7 @@ import AuthLayout from './layouts/AuthLayout'
 import Register from './pages/Auth/Register'
 import Home from './pages/Home'
 import CreatePost from './pages/Posts/CreatePost';
+
 function App() {
 
   const router= createBrowserRouter([
@@ -18,7 +19,7 @@ function App() {
     { path: '/feed', element:  <PrivateRoute> <MainLayout><Feed /></MainLayout></PrivateRoute> },
     { path: '/createpost', element:  <PrivateRoute> <MainLayout><CreatePost/></MainLayout></PrivateRoute> },
     { path: '/login', element: <AuthLayout><Login /></AuthLayout> },
-    { path: '/profile', element: <PrivateRoute><MainLayout><Profile /></MainLayout></PrivateRoute>}
+    { path: '/profile', element: <PrivateRoute><MainLayout><Profile /></MainLayout></PrivateRoute>},
   ]);
 
   return (
