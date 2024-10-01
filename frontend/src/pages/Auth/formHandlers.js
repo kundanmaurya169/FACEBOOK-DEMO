@@ -34,8 +34,9 @@ export const useLoginHandler = (formData) => {
             if (response.token) {
                 console.log(response.token);
                 const token = JSON.stringify(response.token);
-                // Optionally store the token in localStorage or set a cookie here
+                // Optionally store the token in localStorage or set a cookie here'
                 localStorage.setItem('token', token);
+                document.cookie = `token=${token}; path=/;`;
                 alert('Login successful!');
                 navigate('/feed'); // Navigate to feed
             } else {

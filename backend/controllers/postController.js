@@ -6,7 +6,7 @@ const createPost = async (req, res) => {
     try {
         const { title, content } = req.body;
         const userId = req.user._id;
-        console.log(userId,title,content);
+        console.log("In Backend create post data :- ",userId,title,content);
         // Ensure req.user is available and contains the user ID
         if (!req.user || !req.user._id) {
             return res.status(401).json({ message: 'Unauthorized: User ID is missing.' });

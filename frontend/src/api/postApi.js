@@ -9,14 +9,11 @@ export const createPost = async (formData) => {
     const token = localStorage.getItem('token');
     console.log('from frontend send token',token);
     console.log("send data ;- ", formData);
-    // for (let pair of formData.entries()) {
-    //     console.log(`${pair[0]}: ${pair[1]}`);
-    // }
     try {
         const response = await axios.post(`${API_URL}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
-                'Authorization': `Bearer ${token}` ,
+                'Authorization': `Bearer ${token}`,
             },
             timeout: 10000, // Optional: Set a timeout for the request (10 seconds)
         });
@@ -37,11 +34,13 @@ export const createPost = async (formData) => {
 };
 // fetch post
 export const fetchPosts = async () => {
+    const token = localStorage.getItem('token');
     try {
         const response = await axios.get(`${API_URL}`, {
             withCredentials: true, // Include cookies if necessary
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
             },
         });
         return response.data; // Return the data from the response

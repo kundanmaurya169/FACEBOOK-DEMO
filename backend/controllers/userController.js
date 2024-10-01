@@ -35,77 +35,90 @@ exports.loginUser = async (req, res) => {
 
     // Check for empty fields
     if (!login || !password) {
-        return res.status(400).send('Email and password are required.');
+        return res.status(400).json({ message: 'Email and password are required.' });
     }
 
     try {
-         // Find user by email or phone
-         const user = await User.findOne({
-            $or: [{ email: login }, { phone: login }] // Search by email or phone
+        // Find user by email or phone
+        const user = await User.findOne({ 
+            $or: [{ email: login }, { phone: login }] 
         });
 
         if (!user) {
-            return res.status(400).send('Invalid login credentials.');
+            return res.status(400).json({ message: 'Invalid login credentials.' });
         }
 
         // Compare the entered password with the hashed password in the database
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).send('Invalid login credentials.');
+            return res.status(400).json({ message: 'Invalid login credentials.' });
         }
-         // Generate the JWT token
-         const token = user.generateAuthToken();
-        console.log('login token ===',token)
-         // Step 4: Create a new token entry in the database
-         const tokenEntry = new Token({
-             userId: user._id,  // Link to the user
-             token: token, // Save the generated token
-             isActive: true,     // Token is active by default
-         });
- 
-         await tokenEntry.save();
 
-       // Send the token in a cookie (adjust the options as necessary)
-       res.cookie('token', token, { 
-        maxAge: 7*24*60*60*1000, // 1 hour in milliseconds
-        httpOnly: true, // Prevents JavaScript access to the cookie
-        secure: process.env.NODE_ENV === 'production', // Use true in production for HTTPS
-        sameSite: 'Strict' // Adjust as needed for your application
-    });
+        // Generate the JWT token
+        const token=user.generateAuthToken();
+    //     const token = generateToken();
+    //     const payload = {
+    //         userId: user._id,
+    //         name: user.name,
+    //         email: user.email,
+    //         phone: user.phone
+    //     };
+    //     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    // console.log('login token ==== ', token);
+        // Create a new token entry in the database
+        await Token.create({
+            userId: user._id,
+            token,
+            isActive: true
+        });
 
-    // Optionally, send the token in the response body
-    return res.status(200).send({ message: 'Login successful', token });
+        // Optionally, send the token in a cookie (adjust the options as necessary)
+        // res.cookie('token', token, { 
+        //     maxAge: 7 * 24 * 60 * 60 * 1000, // 1 hour in milliseconds
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production', 
+        //     sameSite: 'Strict' 
+        // });
+
+        // Send the token in the response body
+        return res.status(200).json({ message: 'Login successful', token });
 
     } catch (error) {
         console.error('Error during login:', error);
-        res.status(500).send('Server error.');
+        return res.status(500).json({ message: 'Server error.' });
     }
 };
+
 
 // LogOut user
 exports.logout = async (req, res) => {
     try {
-        // Step 1: Find the token in the database using the token from cookies
-        const token = req.cookies.token;
+        // Retrieve the token from the Authorization header
+        const token = req.headers['authorization']?.split(' ')[1];
+        const cleanToken = token.replace(/"/g, '');
+        console.log('logout token === ', token)
+
         if (!token) {
             return res.status(400).json({ message: 'No token found' });
         }
+        // Update the token entry to set isActive to false
+        await Token.findOneAndUpdate({ cleanToken }, { isActive: false });
 
-        // Step 2: Update the token entry to set isActive to false
-        await Token.findOneAndUpdate({ token }, { isActive: false });
+        // Optionally, clear the cookie
+        // res.cookie('token', '', {
+        //     maxAge: 0, // Expire the cookie immediately
+        //     httpOnly: true,
+        //     secure: process.env.NODE_ENV === 'production',
+        //     path: '/', // Ensure the same path as the original cookie
+        // });
 
-        // Step 3: Clear the cookie
-        return res.cookie('token', '', {
-            maxAge: 0, // Expire the cookie immediately
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            path: '/', // Ensure the same path as the original cookie
-        }).status(200).json({ message: 'Logged out successfully' });
+        return res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
         console.error('Error during logout:', error);
         return res.status(500).json({ message: 'Server error' });
     }
 };
+
 
 
 
@@ -116,6 +129,7 @@ exports.getUserProfile = async (req, res) => {
 
         // Option 2: Get the authenticated user (if using authentication)
         const userId = req.user._id;
+        console.log('in get user profile')
 
         const user = await User.findById(userId).select('-password -token'); // Exclude sensitive fields
 

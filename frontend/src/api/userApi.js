@@ -48,8 +48,23 @@ export const loginUser = async (formData) => {
 
 
 export const fetchUserInfo = async () => {
-    const token = localStorage.getItem('token');
     try {
+        //const token = localStorage.getItem('token');
+        //console.log('fetchuserinfo ===',token)
+        // Function to get a cookie by name
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    
+    if (parts.length === 2) {
+        return parts.pop().split(';').shift();
+    }
+    return null; // Return null if cookie not found
+}
+
+// Get the token from the cookie
+const token = getCookie('token');
+
         const response = await axios.get(`${API_URL}/profile`, {
             withCredentials: true, // Allows cookies to be sent with the request
             headers: {
@@ -74,12 +89,15 @@ export const fetchUserInfo = async () => {
 };
 
 export const logout = async () => {
+    
     try {
+        const token = localStorage.getItem('token');
         console.log("in logout function");
         const response = await axios.get(`${API_URL}/logout`, {
             withCredentials: true, // Ensure cookies are sent with the request
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
             },
         });
         return response; 
