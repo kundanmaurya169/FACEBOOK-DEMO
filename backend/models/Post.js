@@ -18,6 +18,8 @@ const postSchema = new Schema({
     image: {
         type: String, // or whatever type you're using to store image paths
     },
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
     createdAt: {
         type: Date,
         default: Date.now,

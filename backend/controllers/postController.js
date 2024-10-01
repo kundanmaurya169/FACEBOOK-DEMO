@@ -36,10 +36,20 @@ const createPost = async (req, res) => {
     }
 };
 
-// Get post by ID
+// Get All post
 const getPost = async (req, res) => {
     try {
-        const posts = await Post.find().sort({ createdAt: -1 }).populate('userId', 'name email'); // Fetch all posts, sort by createdAt, and populate user info
+        const posts = await Post.find()
+        .sort({ createdAt: -1 })
+        .populate('userId', 'name email')
+        .populate({
+          path: 'comments',
+          populate: { path: 'userId', select: 'name email' }, // Populate user info for comments
+        })
+        .populate({
+          path: 'likes',
+          populate: { path: 'userId', select: 'name email' }, // Populate user info for likes
+        }); // Fetch all posts, sort by createdAt, and populate user info
         console.log("get post === ", posts)
         res.status(200).json(posts); // Return the posts in JSON format
     } catch (error) {
