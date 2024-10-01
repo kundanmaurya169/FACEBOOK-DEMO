@@ -1,5 +1,5 @@
 const express = require('express');
-const { createPost, getPostById, updatePostById, deletePost } = require('../controllers/postController.js'); // Adjust the path accordingly
+const { createPost, getPost, updatePostById, deletePost } = require('../controllers/postController.js'); // Adjust the path accordingly
 const auth = require('../middleware/authMiddleware.js'); // Ensure this points to your auth middleware
 const upload = require('../config/multer.js');
 const router = express.Router();
@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/', auth, upload.single('image'), createPost);
 
 // GET /posts/:id - Retrieve a specific post by ID
-router.get('/:id',auth, getPostById);
+router.get('/',auth, getPost);
 
 // PUT /posts/:id - Update a specific post by ID
 router.put('/:id', auth, updatePostById);

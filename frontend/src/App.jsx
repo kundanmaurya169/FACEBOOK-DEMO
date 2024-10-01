@@ -9,14 +9,14 @@ import MainLayout from './layouts/MainLayout'
 import AuthLayout from './layouts/AuthLayout'
 import Register from './pages/Auth/Register'
 import Home from './pages/Home'
-import PostCard from './pages/Posts/CreatePost'
+import CreatePost from './pages/Posts/CreatePost';
 function App() {
 
   const router= createBrowserRouter([
     { path: "/", element: <Home />},
     { path: '/register', element: <AuthLayout><Register/></AuthLayout> },
     { path: '/feed', element:  <PrivateRoute> <MainLayout><Feed /></MainLayout></PrivateRoute> },
-    { path: '/createpost', element:  <PrivateRoute> <MainLayout><PostCard/></MainLayout></PrivateRoute> },
+    { path: '/createpost', element:  <PrivateRoute> <MainLayout><CreatePost/></MainLayout></PrivateRoute> },
     { path: '/login', element: <AuthLayout><Login /></AuthLayout> },
     { path: '/profile', element: <PrivateRoute><MainLayout><Profile /></MainLayout></PrivateRoute>}
   ]);

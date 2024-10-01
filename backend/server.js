@@ -33,6 +33,7 @@ app.use('/api/post', postRoutes);
 app.use('/api/comment', commentRoutes);
 app.use('/api/like', likeRoutes);
 app.use('/api/friend', friendRoutes);
+app.use('/uploads', express.static('uploads'));
 
 // Health check route
 app.get('/', (req, res) => {

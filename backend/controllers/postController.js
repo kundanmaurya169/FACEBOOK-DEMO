@@ -6,6 +6,7 @@ const createPost = async (req, res) => {
     try {
         const { title, content } = req.body;
         const userId = req.user._id;
+        console.log(userId,title,content);
         // Ensure req.user is available and contains the user ID
         if (!req.user || !req.user._id) {
             return res.status(401).json({ message: 'Unauthorized: User ID is missing.' });
@@ -35,22 +36,14 @@ const createPost = async (req, res) => {
 };
 
 // Get post by ID
-const getPostById = async (req, res) => {
+const getPost = async (req, res) => {
     try {
-        // Validate if the id is a valid MongoDB ObjectId
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-            return res.status(400).json({ message: "Invalid post ID" });
-        }
-
-        const post = await Post.findById(req.params.id);
-
-        if (!post) {
-            return res.status(404).json({ message: "Post not found" });
-        }
-
-        res.status(200).json(post);
+        const posts = await Post.find().sort({ createdAt: -1 }).populate('userId', 'name email'); // Fetch all posts, sort by createdAt, and populate user info
+        console.log("get post === ", posts)
+        res.status(200).json(posts); // Return the posts in JSON format
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error fetching posts:', error);
+        res.status(500).json({ message: 'Failed to fetch posts' });
     }
 };
 
@@ -108,4 +101,4 @@ const deletePost = async (req, res) => {
     }
 };
 
-module.exports = { createPost, getPostById, updatePostById, deletePost };
+module.exports = { createPost, getPost, updatePostById, deletePost };

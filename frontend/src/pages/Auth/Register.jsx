@@ -39,6 +39,7 @@ const Register = () => {
                         value={formData.name}
                         onChange={onChange}
                         required
+                        placeholder='Enter your name'
                         className="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
                     />
                 </div>
@@ -68,6 +69,7 @@ const Register = () => {
                         value={formData.phone}
                         onChange={onChange}
                         required
+                        placeholder='Enter your phone'
                         className="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
                     />
                 </div>
@@ -82,6 +84,7 @@ const Register = () => {
                         value={formData.password}
                         onChange={onChange}
                         required
+                        placeholder='Enter your password'
                         className="mt-1 block w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
                     />
                 </div>

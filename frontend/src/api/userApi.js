@@ -48,11 +48,13 @@ export const loginUser = async (formData) => {
 
 
 export const fetchUserInfo = async () => {
+    const token = localStorage.getItem('token');
     try {
         const response = await axios.get(`${API_URL}/profile`, {
             withCredentials: true, // Allows cookies to be sent with the request
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
             }
         });
 

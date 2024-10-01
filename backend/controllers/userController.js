@@ -54,15 +54,16 @@ exports.loginUser = async (req, res) => {
             return res.status(400).send('Invalid login credentials.');
         }
          // Generate the JWT token
-        const token = user.generateAuthToken();
-
-        // Saving Token in to Token Schema
-        const tokenDocument = new Token({
-            userId: user._id,
-            token,
-            expiresAt: new Date(Date.now() + 3600000), // Set expiration 1 hour from now
-        });
-         await tokenDocument.save();
+         const token = user.generateAuthToken();
+        console.log('login token ===',token)
+         // Step 4: Create a new token entry in the database
+         const tokenEntry = new Token({
+             userId: user._id,  // Link to the user
+             token: token, // Save the generated token
+             isActive: true,     // Token is active by default
+         });
+ 
+         await tokenEntry.save();
 
        // Send the token in a cookie (adjust the options as necessary)
        res.cookie('token', token, { 
@@ -82,17 +83,30 @@ exports.loginUser = async (req, res) => {
 };
 
 // LogOut user
-exports.logout = (req, res) => {
-    // Clear the cookie storing the JWT token
-    console.log("Logout");
+exports.logout = async (req, res) => {
+    try {
+        // Step 1: Find the token in the database using the token from cookies
+        const token = req.cookies.token;
+        if (!token) {
+            return res.status(400).json({ message: 'No token found' });
+        }
 
-    return res.cookie('token', '', {
-        maxAge: 0, // Set the cookie to expire immediately
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // Secure in production, not in development
-        path: '/', // Ensure the same path as the original cookie
-    }).status(200).json({ message: 'Logged out successfully' });
+        // Step 2: Update the token entry to set isActive to false
+        await Token.findOneAndUpdate({ token }, { isActive: false });
+
+        // Step 3: Clear the cookie
+        return res.cookie('token', '', {
+            maxAge: 0, // Expire the cookie immediately
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            path: '/', // Ensure the same path as the original cookie
+        }).status(200).json({ message: 'Logged out successfully' });
+    } catch (error) {
+        console.error('Error during logout:', error);
+        return res.status(500).json({ message: 'Server error' });
+    }
 };
+
 
 
 
