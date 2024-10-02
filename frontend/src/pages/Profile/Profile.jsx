@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { fetchUserInfo , updateUserProfile} from '../../api/userApi'; // Import API function for fetching user info
+import { fetchUserInfo, updateUserProfile } from '../../api/userApi'; // Import API functions
 import ProfileModal from './UpdateProfileModel'; // Import the ProfileModal component
-import MyPost from '../Posts/MyPost'
+import MyPost from '../Posts/MyPost'; // Import MyPost component
 
 const UserProfile = () => {
   const [user, setUser] = useState(null); // State to hold user info
@@ -57,62 +57,60 @@ const UserProfile = () => {
     };
 
     getUserInfo(); // Call the function to fetch user info
-  }, [updateTrigger]); // Empty dependency array to run only once on component mount
-
+  }, [updateTrigger]); // Run only once on component mount
 
   if (loading) {
-    return <div>Loading...</div>; // Display loading state
+    return <div className="text-center py-4">Loading...</div>; // Display loading state
   }
 
   if (error) {
-    return <div>{error}</div>; // Display error message
+    return <div className="text-red-500 text-center">{error}</div>; // Display error message
   }
 
-  return (<>
-    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">User Profile</h2>
-      <div className="space-y-4">
-        {/* <div className="flex justify-between">
-          <span className="font-medium text-gray-600">UserId:</span>
-          <span className="text-gray-800">{user._id}</span>
-        </div> */}
-        <div className="flex justify-between">
-          <span className="font-medium text-gray-600">Name:</span>
-          <span className="text-gray-800">{user.name}</span>
+  return (
+    <>
+      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg mb-6">
+        {/* Modal for updating profile */}
+        <ProfileModal 
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          onUpdate={handleUpdateProfile}
+          updatedName={updatedName}
+          setUpdatedName={setUpdatedName}
+          updatedEmail={updatedEmail}
+          setUpdatedEmail={setUpdatedEmail}
+          updatedPhone={updatedPhone}
+          setUpdatedPhone={setUpdatedPhone}
+        />
+        
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-4">User Profile</h2>
+        <div className="space-y-4">
+          <div className="flex justify-between">
+            <span className="font-medium text-gray-600">Name:</span>
+            <span className="text-gray-800">{user.name}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-medium text-gray-600">Phone:</span>
+            <span className="text-gray-800">{user.phone}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-medium text-gray-600">Email:</span>
+            <span className="text-gray-800">{user.email}</span>
+          </div>
         </div>
-        <div className="flex justify-between">
-          <span className="font-medium text-gray-600">Phone:</span>
-          <span className="text-gray-800">{user.phone}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="font-medium text-gray-600">Email:</span>
-          <span className="text-gray-800">{user.email}</span>
-        </div>
+        <button
+          onClick={handleUpdateProfileClick}
+          className="mt-6 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+        >
+          Edit Profile
+        </button>
       </div>
-      <button
-        onClick={handleUpdateProfileClick}
-        className="mt-6 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition duration-200"
-      >
-        Edit Profile
-      </button>
 
-      {/* Modal for updating profile */}
-      <ProfileModal 
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        onUpdate={handleUpdateProfile}
-        updatedName={updatedName}
-        setUpdatedName={setUpdatedName}
-        updatedEmail={updatedEmail}
-        setUpdatedEmail={setUpdatedEmail}
-        updatedPhone={updatedPhone}
-        setUpdatedPhone={setUpdatedPhone}
-      />
-      
-    </div>
-
-
-    <MyPost userId={user._id}/>
+      {/* Lower Part: User Posts */}
+      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg">
+        {/* <h2 className="text-2xl font-bold text-gray-800 mb-4">My Posts</h2> */}
+        <MyPost userId={user._id} />
+      </div>
     </>
   );
 };

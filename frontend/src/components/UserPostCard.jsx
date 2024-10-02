@@ -1,47 +1,182 @@
 /* eslint-disable react/prop-types */
-
-import { deletePost } from '../api/postApi'; // Adjust the import path as necessary
+import { useEffect, useRef, useState } from "react";
+import { deletePost, updatePost } from "../api/postApi"; // Adjust the import path as necessary 
+import { deleteComment } from "../api/commentApi"; // Import comment functions
+import { FaComment } from "react-icons/fa"; // Import an icon for comments
 
 const UserPostCard = ({ post, onDelete }) => {
-    const handleDelete = async () => {
-        if (window.confirm('Are you sure you want to delete this post?')) {
-            try {
-                await deletePost(post._id); // Call the delete function with the post ID
-                onDelete(post._id); // Notify the parent to update the state
-            } catch (error) {
-                alert('Failed to delete the post.');
-                console.log(error)
-            }
-        }
+  const [showMenu, setShowMenu] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [updatedTitle, setUpdatedTitle] = useState(post.title);
+  const [updatedContent, setUpdatedContent] = useState(post.content);
+  const [comments, setComments] = useState(post.comments || []);
+  const [showComments, setShowComments] = useState(false);
+  
+  // Reference to the menu
+  const menuRef = useRef(null);
+
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this post?")) {
+      try {
+        await deletePost(post._id);
+        onDelete(post._id);
+      } catch (error) {
+        alert("Failed to delete the post.");
+        console.log(error);
+      }
+    }
+  };
+
+  const handleUpdate = async () => {
+    const updatedPost = {
+      title: updatedTitle,
+      content: updatedContent,
     };
 
-    return (
-        <div className="max-w-sm rounded overflow-hidden shadow-lg border border-gray-200 m-4 relative">
-            {/* Delete button positioned in the upper right corner */}
+    try {
+      await updatePost(post._id, updatedPost);
+      setIsEditing(false);
+    } catch (error) {
+      alert("Failed to update the post.");
+      console.log(error);
+    }
+  };
+
+  const handleCommentDelete = async (commentId) => {
+    try {
+      await deleteComment(commentId);
+      setComments(comments.filter((comment) => comment._id !== commentId));
+    } catch (error) {
+      alert("Failed to delete comment.");
+      console.error(error);
+    }
+  };
+
+  const toggleMenu = () => {
+    setShowMenu(!showMenu);
+  };
+
+  const toggleComments = () => {
+    setShowComments(!showComments);
+  };
+
+  // Close the menu when clicking outside of it
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div className="bg-white rounded-lg p-4 mb-4 max-w-md mx-auto relative">
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-lg font-bold">{post?.userId?.name}</span>
+        <button onClick={toggleMenu} className="text-gray-500 focus:outline-none">
+          ...
+        </button>
+        {showMenu && (
+          <div
+            ref={menuRef}
+            className="absolute right-0 mt-2 bg-white border rounded shadow-md z-10"
+          >
             <button
-                onClick={handleDelete}
-                className="absolute top-2 right-2 bg-red-500 text-white font-bold py-1 px-2 rounded hover:bg-red-700"
+              onClick={handleDelete}
+              className="block px-4 py-2 text-red-600 hover:bg-gray-200 w-full text-left"
             >
-                Delete
+              Delete
             </button>
-            {/* Image displayed in a row above the content */}
-            
-            <div className="p-4">
-                <h2 className="text-xl font-bold mb-2">{post.title}</h2>
-                <p className="text-gray-700">{post.content}</p>
-                <p className="text-gray-500 text-sm">
-                    Posted by {post?.userId?.name} on {new Date(post.createdAt).toLocaleDateString()}
-                </p>
-            </div>
-            {post.image && (
-                <img
-                    className="w-full h-48 object-cover"
-                    src={`http://localhost:8000/${post.image}`} // Adjust path as necessary
-                    alt="Post Image"
-                />
-            )}
+            <button
+              onClick={() => setIsEditing(true)}
+              className="block px-4 py-2 text-blue-600 hover:bg-gray-200 w-full text-left"
+            >
+              Update
+            </button>
+          </div>
+        )}
+      </div>
+
+      {isEditing ? (
+        <div>
+          <input
+            type="text"
+            value={updatedTitle}
+            onChange={(e) => setUpdatedTitle(e.target.value)}
+            className="border rounded w-full mb-2 p-2"
+            placeholder="Post Title"
+          />
+          <textarea
+            value={updatedContent}
+            onChange={(e) => setUpdatedContent(e.target.value)}
+            className="border rounded w-full mb-2 p-2"
+            placeholder="Post Content"
+            rows={3}
+            style={{ resize: "vertical" }}
+          />
+          <button
+            onClick={handleUpdate}
+            className="bg-blue-500 text-white font-bold py-1 px-4 rounded hover:bg-blue-700"
+          >
+            Save
+          </button>
+          <button
+            onClick={() => setIsEditing(false)}
+            className="bg-gray-500 text-white font-bold py-1 px-4 rounded hover:bg-gray-700 ml-2"
+          >
+            Cancel
+          </button>
         </div>
-    );
+      ) : (
+        <div>
+          <div className="text-lg mb-2">{post?.title}</div>
+          <div className="text-lg mb-2">{post?.content}</div>
+          {post.image && (
+            <img
+              src={`http://localhost:8000/${post.image}`}
+              className="w-full h-48 object-cover mb-2 rounded"
+              alt="Post"
+            />
+          )}
+        </div>
+      )}
+
+      <div className="flex justify-between items-center mt-4">
+        <div className="flex items-center">
+          <span className="text-gray-600 text-sm mr-4">{post.likeCount} likes</span>
+          <span className="text-gray-600 text-sm mr-4">{post.dislikeCount} dislikes</span>
+          <div className="flex items-center cursor-pointer" onClick={toggleComments}>
+            <FaComment className="text-gray-600 mr-3" />
+            <span className="text-gray-600">{comments.length} Comments</span>
+          </div>
+        </div>
+      </div>
+
+      {showComments && (
+        <div className="mt-4 border-t border-gray-300 pt-2">
+          {comments.map((comment) => (
+            <div key={comment._id} className="flex justify-between items-center py-2">
+              <span className="font-bold">{comment.userId.name}:</span>
+              <div className="flex items-center">
+                <span>{comment.text}</span>
+                <button
+                  onClick={() => handleCommentDelete(comment._id)}
+                  className="text-red-500 ml-2"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default UserPostCard;

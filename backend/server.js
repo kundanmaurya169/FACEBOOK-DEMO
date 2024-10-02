@@ -21,11 +21,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // Connect to MongoDB
 connectDB();
-app.use(cookieParser()); // Use cookie-parser to handle cookies
 app.use(cors({
-    origin: 'http://localhost:5173', // Your frontend origin
-    credentials: true, // Allow cookies to be sent with requests
-}));
+    origin: 'http://localhost:5173', // Replace with your frontend URL
+    credentials: true, // Allows the frontend to send cookies
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers like Authorization
+  }));
 
 // Routes
 app.use('/api/user', userRoutes);

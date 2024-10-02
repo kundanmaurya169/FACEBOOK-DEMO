@@ -19,6 +19,7 @@ const postSchema = new Schema({
         type: String, // or whatever type you're using to store image paths
     },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
+    dislikes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Dislike' }],
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
     createdAt: {
         type: Date,

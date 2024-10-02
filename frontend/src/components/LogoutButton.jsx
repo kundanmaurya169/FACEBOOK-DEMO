@@ -10,7 +10,7 @@ const LogoutButton = () => {
             try {
                 await logout(); // Call the logout function
                 const token=localStorage.removeItem('token');
-                alert('Logout',token)
+                console.log("after loout token is empty :-",token)
                 navigate('/'); // Redirect to the login page
             } catch (error) {
                 console.error('Logout failed:', error);

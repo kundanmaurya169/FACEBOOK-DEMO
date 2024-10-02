@@ -37,26 +37,64 @@ const createPost = async (req, res) => {
 };
 
 // Get All post
+// const getPost = async (req, res) => {
+//     try {
+//         const posts = await Post.find()
+//         .sort({ createdAt: -1 })
+//         .populate('userId', 'name email')
+//         .populate({
+//           path: 'comments',
+//           populate: { path: 'userId', select: 'name email' }, // Populate user info for comments
+//         })
+//         .populate({
+//           path: 'likes',
+//           populate: { path: 'userId', select: 'name email' }, // Populate user info for likes
+//         }); // Fetch all posts, sort by createdAt, and populate user info
+//         console.log("get post === ", posts)
+//         res.status(200).json(posts); // Return the posts in JSON format
+//     } catch (error) {
+//         console.error('Error fetching posts:', error);
+//         res.status(500).json({ message: 'Failed to fetch posts' });
+//     }
+// };
+
 const getPost = async (req, res) => {
     try {
+        // Fetch all posts, sort by createdAt, and populate user info, comments, and likes
         const posts = await Post.find()
-        .sort({ createdAt: -1 })
-        .populate('userId', 'name email')
-        .populate({
-          path: 'comments',
-          populate: { path: 'userId', select: 'name email' }, // Populate user info for comments
-        })
-        .populate({
-          path: 'likes',
-          populate: { path: 'userId', select: 'name email' }, // Populate user info for likes
-        }); // Fetch all posts, sort by createdAt, and populate user info
-        console.log("get post === ", posts)
-        res.status(200).json(posts); // Return the posts in JSON format
+            .sort({ createdAt: -1 })
+            .populate('userId', 'name email') // Populate the user info for the post author
+            .populate({
+                path: 'comments',
+                populate: { 
+                    path: 'userId', // Populate user info for each comment
+                    select: 'name email' // Specify fields to return
+                }
+            })
+            .populate({
+                path: 'likes',
+                populate: { 
+                    path: 'userId', // Populate user info for likes
+                    select: 'name email' // Specify fields to return
+                }
+            });
+
+        // Add likesCount and dislikesCount to each post object
+        const postsWithCounts = posts.map(post => ({
+            ...post.toObject(), // Convert Mongoose document to plain JavaScript object
+            likesCount: post.likes.length, // Count the number of likes
+            dislikesCount: post.dislikes ? post.dislikes.length : 0, // Count the number of dislikes
+        }));
+
+        console.log("Posts with counts === ", postsWithCounts);
+        res.status(200).json(postsWithCounts); // Return the posts with counts in JSON format
     } catch (error) {
         console.error('Error fetching posts:', error);
         res.status(500).json({ message: 'Failed to fetch posts' });
     }
 };
+
+
 
 // Controller to get posts by user ID
 const getPostById = async (req, res) => {
@@ -101,26 +139,25 @@ const updatePostById = async (req, res) => {
             return res.status(404).json({ message: 'Post not found.' });
         }
 
-        // Check if the user is authorized to update the post (optional)
-        // Ensure you have a user ID associated with the post, 
-        // and that the current user matches that ID
-        // if (post.userId.toString() !== req.user._id) {
-        //     return res.status(403).json({ message: 'Unauthorized to update this post.' });
-        // }
+        // Uncomment and implement authorization check if necessary
+        if (post.userId.toString() !== req.user._id) {
+            return res.status(403).json({ message: 'Unauthorized to update this post.' });
+        }
 
         // Update title and content if they are provided
         if (title) post.title = title;
         if (content) post.content = content;
 
         // Save the updated post
-        await post.save();
+        const updatedPost = await post.save();
 
-        return res.status(200).json({ message: 'Post updated successfully.', post });
+        return res.status(200).json({ message: 'Post updated successfully.', post: updatedPost });
     } catch (error) {
         console.error('Error updating post:', error);
-        return res.status(500).json({ message: 'Server error.' });
+        return res.status(500).json({ message: 'Failed to update post due to server error.' });
     }
 };
+
 
 // Delete a post by ID
 const deletePost = async (req, res) => {

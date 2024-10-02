@@ -1,7 +1,7 @@
 import './App.css'
 import {createBrowserRouter,RouterProvider} from 'react-router-dom'
 import Feed from './pages/Posts/Feed'
-import Profile from './pages/Profile/Profile'
+// import Profile from './pages/Profile/Profile'
 import Login from './pages/Auth/Login'
 import PrivateRoute from './routes/PrivateRoute'
 // import PublicRoute from './routes/PublicRoute'
@@ -10,6 +10,7 @@ import AuthLayout from './layouts/AuthLayout'
 import Register from './pages/Auth/Register'
 import Home from './pages/Home'
 import CreatePost from './pages/Posts/CreatePost';
+import ProfilePage from './pages/Profile/ProfilePage'
 
 function App() {
 
@@ -19,7 +20,7 @@ function App() {
     { path: '/feed', element:  <PrivateRoute> <MainLayout><Feed /></MainLayout></PrivateRoute> },
     { path: '/createpost', element:  <PrivateRoute> <MainLayout><CreatePost/></MainLayout></PrivateRoute> },
     { path: '/login', element: <AuthLayout><Login /></AuthLayout> },
-    { path: '/profile', element: <PrivateRoute><MainLayout><Profile /></MainLayout></PrivateRoute>},
+    { path: '/profile', element: <PrivateRoute><MainLayout><ProfilePage /></MainLayout></PrivateRoute>},
   ]);
 
   return (

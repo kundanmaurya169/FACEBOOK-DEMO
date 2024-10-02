@@ -43,6 +43,7 @@ export const fetchPosts = async () => {
                 'Authorization': `Bearer ${token}`,
             },
         });
+        console.log(response);
         return response.data; // Return the data from the response
     } catch (error) {
         console.error('Error fetching posts:', error);
@@ -81,5 +82,36 @@ export const fetchPostsByUserId = async (userId) => {
     } catch (error) {
         console.error('Error fetching posts by user ID:', error);
         throw error; // Rethrow the error for handling in the calling function
+    }
+};
+
+// Function to update a post by ID
+export const updatePost = async (postId, updatedPost) => {
+    const token = localStorage.getItem('token'); // Get the token from localStorage
+
+    try {
+        const response = await axios.put(`${API_URL}/${postId}`, updatedPost, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json', // Specify the content type
+            },
+        });
+        return response.data; // Return the response data
+    } catch (error) {
+        // Handle errors appropriately
+        if (error.response) {
+            // The request was made, and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error('Error updating post:', error.response.data.message);
+            throw new Error(error.response.data.message || 'Failed to update post');
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.error('No response received:', error.request);
+            throw new Error('No response from the server. Please try again later.');
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error('Error', error.message);
+            throw new Error('An error occurred. Please try again later.');
+        }
     }
 };
