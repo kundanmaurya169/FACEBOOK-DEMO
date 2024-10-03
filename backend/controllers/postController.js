@@ -5,96 +5,71 @@ const { ObjectId } = require('mongoose').Types;
 // Create a new post
 const createPost = async (req, res) => {
     try {
+        // Destructure the required fields from the request body
         const { title, content } = req.body;
+        
+        // Retrieve the userId from the authenticated user
         const userId = req.user._id;
-        console.log("In Backend create post data :- ",userId,title,content);
+        console.log("In Backend create post data:", { userId, title, content });
+
         // Ensure req.user is available and contains the user ID
         if (!req.user || !req.user._id) {
             return res.status(401).json({ message: 'Unauthorized: User ID is missing.' });
         }
+
+        // Check if an image file was uploaded
         if (!req.file) {
             return res.status(400).json({ error: "No image file uploaded." });
         }
-         // Ensure req.file is not undefined before accessing its properties
-         const imagePath = req.file ? req.file.path : null;
 
-         if (!imagePath) {
-             return res.status(400).json({ error: 'Image file is required' });
-         }
- 
-         const newPost = new Post({
-             title,
-             content,
-             userId,
-             image: imagePath, // Store the image path in the post
-         });
+        // Retrieve the image path from the uploaded file
+        const imagePath = req.file.path;
 
+        // Create a new post instance with the provided data
+        const newPost = new Post({
+            title,
+            content,
+            userId,
+            image: imagePath, // Store the image path in the post
+        });
+
+        // Save the new post to the database
         await newPost.save();
+        
+        // Respond with the created post and a success status
         res.status(201).json(newPost);
     } catch (error) {
+        // Handle any errors that occur during the process
         res.status(500).json({ error: error.message });
     }
 };
 
-// Get All post
-// const getPost = async (req, res) => {
-//     try {
-//         const posts = await Post.find()
-//         .sort({ createdAt: -1 })
-//         .populate('userId', 'name email')
-//         .populate({
-//           path: 'comments',
-//           populate: { path: 'userId', select: 'name email' }, // Populate user info for comments
-//         })
-//         .populate({
-//           path: 'likes',
-//           populate: { path: 'userId', select: 'name email' }, // Populate user info for likes
-//         }); // Fetch all posts, sort by createdAt, and populate user info
-//         console.log("get post === ", posts)
-//         res.status(200).json(posts); // Return the posts in JSON format
-//     } catch (error) {
-//         console.error('Error fetching posts:', error);
-//         res.status(500).json({ message: 'Failed to fetch posts' });
-//     }
-// };
-
 const getPost = async (req, res) => {
     try {
         // Fetch all posts, sort by createdAt, and populate user info, comments, and likes
-        const posts = await Post.find()
-            .sort({ createdAt: -1 })
-            .populate('userId', 'name email') // Populate the user info for the post author
-            .populate({
-                path: 'comments',
-                populate: { 
-                    path: 'userId', // Populate user info for each comment
-                    select: 'name email' // Specify fields to return
-                }
-            })
-            .populate({
-                path: 'likes',
-                populate: { 
-                    path: 'userId', // Populate user info for likes
-                    select: 'name email' // Specify fields to return
-                }
-            });
-
-        // Add likesCount and dislikesCount to each post object
-        const postsWithCounts = posts.map(post => ({
-            ...post.toObject(), // Convert Mongoose document to plain JavaScript object
-            likesCount: post.likes.length, // Count the number of likes
-            dislikesCount: post.dislikes ? post.dislikes.length : 0, // Count the number of dislikes
-        }));
-
-        console.log("Posts with counts === ", postsWithCounts);
-        res.status(200).json(postsWithCounts); // Return the posts with counts in JSON format
+        const posts = await Post.find({ isDeleted: false }) // Filter for non-deleted posts
+        .sort({ createdAt: -1 }) // Sort by creation date, latest first
+        .populate('userId', 'name email') // Populate the user info for the post author
+        .populate({
+            path: 'comments',
+            populate: { 
+                path: 'userId', // Populate user info for each comment
+                select: 'name email' // Specify fields to return
+            }
+        })
+        .populate({
+            path: 'likes',
+            populate: { 
+                path: 'userId', // Populate user info for likes
+                select: 'name email' // Specify fields to return
+            }
+        });
+        res.status(200).json(posts); // Return the posts with counts in JSON format
     } catch (error) {
         console.error('Error fetching posts:', error);
         res.status(500).json({ message: 'Failed to fetch posts' });
     }
 };
-
-
 
 // Controller to get posts by user ID
 const getPostById = async (req, res) => {
@@ -107,18 +82,36 @@ const getPostById = async (req, res) => {
         }
 
         // Fetch posts by user ID
-        const posts = await Post.find({ userId: userId }); // Adjust field name as per your Post schema
+        const posts = await Post.find({ userId: userId ,isDeleted:false})
+        .sort({ createdAt: -1 })
+        .populate('userId', 'name email') // Populate user info if needed
+        .populate({
+            path: 'comments',
+            populate: { 
+                path: 'userId', // Populate user info for each comment
+                select: 'name email' // Specify fields to return
+            }
+        })
+        .populate({
+            path: 'likes',
+            populate: { 
+                path: 'userId', // Populate user info for likes
+                select: 'name email' // Specify fields to return
+            }
+        });
 
-        if (!posts || posts.length === 0) {
-            return res.status(404).json({ message: 'No posts found for this user.' });
-        }
+    // Map through posts to add likesCount and commentsCount
+    const postsWithCounts = posts.map(post => ({
+        ...post.toObject(), // Convert Mongoose document to a plain JavaScript object
+        likesCount: post.likes.length, // Count the number of likes
+        commentsCount: post.comments.length, // Count the number of comments
+    }));
 
-        // Send the posts back in the response
-        res.status(200).json(posts);
-    } catch (error) {
-        console.error('Error fetching posts:', error);
-        res.status(500).json({ message: 'Server error while fetching posts.' });
-    }
+    // Return the retrieved posts with counts
+    res.status(200).json(postsWithCounts);
+} catch (error) {
+    res.status(500).json({ error: error.message });
+}
 };
 
 // Update post by ID
@@ -132,7 +125,7 @@ const updatePostById = async (req, res) => {
 
     try {
         // Find the post by ID
-        const post = await Post.findById(id);
+        const post = await Post.findById(id,{isDeleted:false});
 
         // Check if the post exists
         if (!post) {
@@ -158,17 +151,17 @@ const updatePostById = async (req, res) => {
     }
 };
 
-
 // Delete a post by ID
 const deletePost = async (req, res) => {
     try {
-        // Validate if the id is a valid MongoDB ObjectId
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        // Validate if the ID is a valid MongoDB ObjectId
+        const postId = req.params.id;
+        if (!mongoose.Types.ObjectId.isValid(postId)) {
             return res.status(400).json({ message: "Invalid post ID" });
         }
 
         // Find the post by ID
-        const post = await Post.findById(req.params.id);
+        const post = await Post.findById(postId);
         if (!post) {
             return res.status(404).json({ message: "Post not found" });
         }
@@ -178,7 +171,10 @@ const deletePost = async (req, res) => {
             return res.status(403).json({ message: "Unauthorized to delete this post" });
         }
 
-        await Post.findByIdAndDelete(req.params.id);
+        // Soft delete the post by setting isDeleted to true
+        await Post.findByIdAndUpdate(postId, { isDeleted: true }, { new: true });
+
+        // Send response indicating successful deletion
         res.status(200).json({ message: 'Post deleted successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });

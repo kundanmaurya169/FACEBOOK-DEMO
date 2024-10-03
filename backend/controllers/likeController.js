@@ -3,30 +3,44 @@ const Post = require('../models/Post.js');
 
 // Like a post
 const likePost = async (req, res) => {
-  try {
-      const { postId } = req.params;
-      const userId = req.user._id;
+    try {
+        const { postId } = req.params; // Get postId from request parameters
+        const userId = req.user._id; // Get user ID from authenticated user
 
-      const post = await Post.findById(postId);
-      if (!post) {
-          return res.status(404).json({ message: 'Post not found.' });
-      }
+        // Check if the post exists and is not deleted
+        const post = await Post.findOne({ _id: postId, isDeleted: false });
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found or has been deleted.' });
+        }
 
-      // Check if the user already liked the post
-      if (post.likes.includes(userId)) {
-          return res.status(400).json({ message: 'You already liked this post.' });
-      }
+        // Check if the post is already liked by the user
+        const existingLike = await Like.findOne({ postId, userId });
+        if (existingLike) {
+            return res.status(200).json({ message: 'You have already liked this post.' });
+        }
 
-      // Add user ID to the likes array
-      post.likes.push(userId);
-      post.likesCount += 1; // Increment likes count
+        // Create a new like
+        const newLike = new Like({
+            postId,
+            userId,
+            isLike: true, // Indicating a positive like
+        });
 
-      await post.save();
-      res.status(200).json({ message: 'Post liked successfully', likesCount: post.likesCount });
-  } catch (error) {
-      console.error('Error liking post:', error);
-      res.status(500).json({ message: 'Server error', error });
-  }
+        // Save the new like
+        await newLike.save();
+
+        // Add user ID to the likes array on the post
+        post.likes.push(userId);
+        post.likesCount += 1; // Increment likes count
+
+        // Save the updated post
+        await post.save();
+
+        res.status(200).json({ message: 'Post liked successfully', likesCount: post.likesCount });
+    } catch (error) {
+        console.error('Error liking post:', error);
+        res.status(500).json({ message: 'Server error', error });
+    }
 };
 
 

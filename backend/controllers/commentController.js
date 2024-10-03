@@ -62,7 +62,7 @@ const deleteComment = async (req, res) => {
         const { commentId } = req.params;
         const { postId } = req.params;
 
-        const comment = await Comment.findById(commentId);
+        const comment = await Comment.findById(commentId,{isDeleted:false});
         if (!comment) {
             return res.status(404).json({ message: 'Comment not found' });
         }
@@ -71,7 +71,7 @@ const deleteComment = async (req, res) => {
             return res.status(403).json({ message: 'Unauthorized to delete this comment' });
         }
 
-        await Comment.findByIdAndDelete(commentId); // Delete the comment
+        await Comment.findByIdAndUpdate(commentId,{isDeleted:true}, { new: true }); // Delete the comment
 
         // Remove the comment ID from the post's comments array
         const post = await Post.findById(postId);

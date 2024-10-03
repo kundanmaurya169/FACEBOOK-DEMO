@@ -5,7 +5,7 @@ const ProfileModal = ({ isOpen, onClose, onUpdate, updatedName, setUpdatedName, 
   if (!isOpen) return null; // Return null if the modal is not open
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-lg p-6 w-96">
         <h2 className="text-xl font-semibold mb-4">Update Profile</h2>
         <label className="block mb-2">

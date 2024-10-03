@@ -25,6 +25,10 @@ const userSchema = new Schema({
         type: String,
         required: true,
     },
+    isDeleted:{
+        type:Boolean,
+        default:false,
+    },
     created_at: {
         type: Date,
         default: Date.now,
@@ -67,9 +71,6 @@ userSchema.method("comparePassword", async function (loginPassword) {
 // Static method to find user by email or phone
 userSchema.statics.findUser = async function (login) {
     let user = await this.findOne({ email: login });
-    if (!user) {
-        user = await this.findOne({ phone: login });
-    }
     return user;
 };
 

@@ -17,7 +17,7 @@ router.get('/user/:id', auth, getPostById);
 router.put('/:id', auth, updatePostById);
 
 // DELETE /posts/:id - Delete a specific post by ID
-router.delete('/:id', auth, deletePost);
+router.patch('/:id', auth, deletePost);
 
 module.exports = router;
 

@@ -24,7 +24,7 @@ connectDB();
 app.use(cors({
     origin: 'http://localhost:5173', // Replace with your frontend URL
     credentials: true, // Allows the frontend to send cookies
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+    methods: ['GET', 'POST', 'PUT', 'DELETE','OPTIONS'], // Allowed methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers like Authorization
   }));
 

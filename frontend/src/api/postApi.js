@@ -54,7 +54,9 @@ export const fetchPosts = async () => {
 export const deletePost = async (postId) => {
     const token = localStorage.getItem('token'); // Retrieve token from local storage
     try {
-        const response = await axios.delete(`${API_URL}${postId}`, {
+        const response = await axios.patch(`${API_URL}${postId}`,{ 
+            isDeleted: true 
+        }, {
             withCredentials: true, // Include cookies if necessary
             headers: {
                 'Content-Type': 'application/json',

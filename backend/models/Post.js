@@ -8,22 +8,25 @@ const postSchema = new Schema({
     },
     content: {
         type: String,
-        required: true, // Make sure this is set to true
+        required: true, // Content is required for each post
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false, // Indicates whether the post is "soft deleted"
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'User'
+        ref: 'User' // Reference to the User model
     },
     image: {
-        type: String, // or whatever type you're using to store image paths
+        type: String, // Store image paths or URLs
     },
-    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }],
-    dislikes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Dislike' }],
-    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Like' }], // Array of likes
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }], // Array of comments
     createdAt: {
         type: Date,
-        default: Date.now,
+        default: Date.now, // Automatically set the creation date
     },
 });
 

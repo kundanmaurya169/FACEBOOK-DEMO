@@ -27,6 +27,10 @@ const auth = async (req, res, next) => {
         const storedToken = await Token.findOne({ userId: decoded._id, isActive: true });
         console.log('Stored Token:', storedToken);
         console.log('stored token {token}:- ', storedToken.token);
+        // Check if the token has expired
+        if (Date.now() > storedToken.expiredAt) {
+            return res.status(401).json({ message: 'Token has expired.' });
+        }
 
         if (!storedToken || storedToken.token !== cleanToken) {
             console.log('Token mismatch or token not found.');

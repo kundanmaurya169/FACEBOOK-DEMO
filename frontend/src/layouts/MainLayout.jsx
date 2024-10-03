@@ -6,12 +6,12 @@ const MainLayout = ({ children }) => {
     return (
         <div className="flex h-screen bg-gray-100">
             {/* Left Side Navbar */}
-            <div className="w-1/4 bg-gray-500 text-white p-4 shadow-lg">
+            <div className="w-1/4 bg-gray-100 text-white p-4 shadow-lg">
                 <Navbar />
             </div>
 
             {/* Right Side Feed */}
-            <div className="w-3/4 bg-white p-6 overflow-y-auto shadow-md flex flex-col">
+            <div className="w-3/4 bg-gray-100 p-6 overflow-y-auto shadow-md flex flex-col">
                 {/* Main Content Area */}
                 <div className="max-w-4xl mx-auto flex-grow">
                     {children}

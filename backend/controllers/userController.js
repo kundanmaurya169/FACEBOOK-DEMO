@@ -9,10 +9,14 @@ exports.registerUser = async (req, res) => {
         const { name, phone, email, password } = req.body;
         console.log(name,phone,email,password);
 
-        // Check if user already exists
-        const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
+        if (!name || !phone || !email || !password) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+
+        // Check if user already exists (and is not deleted)
+        const existingUser = await User.findOne({ email, isDeleted: false });
         if (existingUser) {
-            return res.status(400).json({ message: 'phone or Email already exists' });
+            return res.status(400).json({ message: 'Email already exists' });
         }
 
         // Hash the password before saving
@@ -40,9 +44,7 @@ exports.loginUser = async (req, res) => {
 
     try {
         // Find user by email or phone
-        const user = await User.findOne({ 
-            $or: [{ email: login }, { phone: login }] 
-        });
+        const user = await User.findOne({ email: login }, {isDeleted:false });
 
         if (!user) {
             return res.status(400).json({ message: 'Invalid login credentials.' });
@@ -53,6 +55,8 @@ exports.loginUser = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid login credentials.' });
         }
+        // Deactivate any previous tokens for the user
+        await Token.updateMany({ userId: user._id, isActive: true }, { isActive: false });
 
         // Generate the JWT token
         const token=user.generateAuthToken();
@@ -68,8 +72,9 @@ exports.loginUser = async (req, res) => {
         // Create a new token entry in the database
         await Token.create({
             userId: user._id,
-            token,
-            isActive: true
+            token:token,
+            isActive: true, // Token is now active
+            expiredAt: Date.now() + 3600000, // Set expiration 1 hour from now
         });
 
         // Optionally, send the token in a cookie (adjust the options as necessary)
@@ -102,7 +107,7 @@ exports.logout = async (req, res) => {
             return res.status(400).json({ message: 'No token found' });
         }
         // Update the token entry to set isActive to false
-        await Token.findOneAndUpdate({ cleanToken }, { isActive: false });
+        await Token.findOneAndUpdate({ cleanToken }, { isActive: false },{expiredAt:Date.now()});
 
         // Optionally, clear the cookie
         // res.cookie('token', '', {
@@ -165,7 +170,12 @@ exports.updateUserProfile = async (req, res) => {
 // Delete user
 exports.deleteUser = async (req, res) => {
     try {
-        const deletedUser = await User.findByIdAndDelete(req.user._id);
+         // Mark the user as deleted by setting isDeleted to true
+         const deletedUser = await User.findByIdAndUpdate(
+            req.user._id, 
+            { isDeleted: true }, 
+            { new: true } // Return the updated document
+        );
         if (!deletedUser) {
             return res.status(404).json({ message: 'User not found' });
         }

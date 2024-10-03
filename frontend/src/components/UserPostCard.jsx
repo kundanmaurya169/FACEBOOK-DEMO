@@ -1,17 +1,17 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
-import { deletePost, updatePost } from "../api/postApi"; // Adjust the import path as necessary 
+import { deletePost, updatePost } from "../api/postApi"; // Adjust the import path as necessary
 import { deleteComment } from "../api/commentApi"; // Import comment functions
 import { FaComment } from "react-icons/fa"; // Import an icon for comments
 
-const UserPostCard = ({ post, onDelete }) => {
+const UserPostCard = ({ post, onDelete, onUpdate }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [updatedTitle, setUpdatedTitle] = useState(post.title);
   const [updatedContent, setUpdatedContent] = useState(post.content);
   const [comments, setComments] = useState(post.comments || []);
   const [showComments, setShowComments] = useState(false);
-  
+
   // Reference to the menu
   const menuRef = useRef(null);
 
@@ -35,6 +35,7 @@ const UserPostCard = ({ post, onDelete }) => {
 
     try {
       await updatePost(post._id, updatedPost);
+      onUpdate(); 
       setIsEditing(false);
     } catch (error) {
       alert("Failed to update the post.");
@@ -44,7 +45,7 @@ const UserPostCard = ({ post, onDelete }) => {
 
   const handleCommentDelete = async (commentId) => {
     try {
-      await deleteComment(commentId);
+      await deleteComment(commentId, post._id);
       setComments(comments.filter((comment) => comment._id !== commentId));
     } catch (error) {
       alert("Failed to delete comment.");
@@ -76,9 +77,11 @@ const UserPostCard = ({ post, onDelete }) => {
 
   return (
     <div className="bg-white rounded-lg p-4 mb-4 max-w-md mx-auto relative">
-      <div className="flex justify-between items-center mb-2">
-        <span className="text-lg font-bold">{post?.userId?.name}</span>
-        <button onClick={toggleMenu} className="text-gray-500 focus:outline-none">
+      <div className="flex justify-between items-center mb-2 relative">
+        <button
+          onClick={toggleMenu}
+          className="absolute top-0 right-0 m-2 text-gray-500 focus:outline-none"
+        >
           ...
         </button>
         {showMenu && (
@@ -136,7 +139,7 @@ const UserPostCard = ({ post, onDelete }) => {
         <div>
           <div className="text-lg mb-2">{post?.title}</div>
           <div className="text-lg mb-2">{post?.content}</div>
-          {post.image && (
+          {post.image && post.image !== "" && (
             <img
               src={`http://localhost:8000/${post.image}`}
               className="w-full h-48 object-cover mb-2 rounded"
@@ -148,9 +151,13 @@ const UserPostCard = ({ post, onDelete }) => {
 
       <div className="flex justify-between items-center mt-4">
         <div className="flex items-center">
-          <span className="text-gray-600 text-sm mr-4">{post.likeCount} likes</span>
-          <span className="text-gray-600 text-sm mr-4">{post.dislikeCount} dislikes</span>
-          <div className="flex items-center cursor-pointer" onClick={toggleComments}>
+          <span className="text-gray-600 text-sm mr-4">
+            {post?.likes?.length || 0} likes
+          </span>
+          <div
+            className="flex items-center cursor-pointer"
+            onClick={toggleComments}
+          >
             <FaComment className="text-gray-600 mr-3" />
             <span className="text-gray-600">{comments.length} Comments</span>
           </div>
@@ -160,13 +167,18 @@ const UserPostCard = ({ post, onDelete }) => {
       {showComments && (
         <div className="mt-4 border-t border-gray-300 pt-2">
           {comments.map((comment) => (
-            <div key={comment._id} className="flex justify-between items-center py-2">
-              <span className="font-bold">{comment.userId.name}:</span>
+            <div
+              key={comment?._id}
+              className="flex justify-between items-center py-2"
+            >
+              <span className="text-sm text-gray-500">
+                {comment?.userId?.name}:
+              </span>
               <div className="flex items-center">
-                <span>{comment.text}</span>
+                <span>{comment.content}</span>
                 <button
-                  onClick={() => handleCommentDelete(comment._id)}
-                  className="text-red-500 ml-2"
+                  onClick={() => handleCommentDelete(comment?._id)}
+                  className="text-red-300 ml-2"
                 >
                   Delete
                 </button>

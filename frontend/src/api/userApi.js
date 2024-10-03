@@ -110,6 +110,26 @@ export const updateUserProfile = async (profileData) => {
     }
 };
 
+export const deleteUserProfile = async () => {
+    try {
+        const token = localStorage.getItem('token');
+        
+        // Make a DELETE request to the server
+        const response = await axios.patch(`${API_URL}/profile`, { isDeleted: true }, { // Using PATCH for soft delete
+            withCredentials: true, // Allows cookies to be sent with the request
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            }
+        });
+
+        return response.data; // Return the response from the server
+    } catch (error) {
+        console.error('Failed to delete profile:', error.message);
+        throw error; // Rethrow the error for handling in the component
+    }
+};
+
 
 
 

@@ -12,6 +12,10 @@ const friendSchema = new Schema({
         ref: 'User', // Reference to the User model
         required: true,
     },
+    isFriend:{
+        type:Boolean,
+        default:false,
+    },
     created_at: {
         type: Date,
         default: Date.now,
