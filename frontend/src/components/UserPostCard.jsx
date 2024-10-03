@@ -137,6 +137,7 @@ const UserPostCard = ({ post, onDelete, onUpdate }) => {
         </div>
       ) : (
         <div>
+         
           <div className="text-lg mb-2">{post?.title}</div>
           <div className="text-lg mb-2">{post?.content}</div>
           {post.image && post.image !== "" && (
@@ -146,6 +147,9 @@ const UserPostCard = ({ post, onDelete, onUpdate }) => {
               alt="Post"
             />
           )}
+          <div className="text-lg font-semibold text-black-500">
+          <span className="text-gray-500 text-sm">Posted on {new Date(post.createdAt).toLocaleDateString()}</span>
+        </div>
         </div>
       )}
 
