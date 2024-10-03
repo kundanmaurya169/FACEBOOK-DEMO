@@ -91,8 +91,11 @@ const PostCard = ({
           <h3>{post?.userId?.name}</h3>
           <span className="text-gray-500 text-sm">Posted on {new Date(post.createdAt).toLocaleDateString()}</span>
         </div>
+       
+
       </div>
-      <h2 className="text-lg font-bold">{post?.title}</h2>
+      <hr className="my-2 border-gray-300" />
+      <h3 className="text-lg font-bold">{post?.title}</h3>
       <p className="text-gray-700">{post?.content}</p>
       {post.image && (
         <img
