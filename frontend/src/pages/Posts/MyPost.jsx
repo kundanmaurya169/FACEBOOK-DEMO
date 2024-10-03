@@ -22,8 +22,19 @@ const MyPost = ({ userId }) => {
     }
   };
   useEffect(() => {
+    const getPosts = async () => {
+      try {
+        const data = await fetchPostsByUserId(userId);
+        setPosts(data);
+      } catch (error) {
+        setError("Failed to fetch posts");
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
     getPosts();
-  },);
+  },[userId]);
 
   
 

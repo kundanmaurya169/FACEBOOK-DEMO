@@ -80,9 +80,9 @@ const UserPostCard = ({ post, onDelete, onUpdate }) => {
       <div className="flex justify-between items-center mb-2 relative">
         <button
           onClick={toggleMenu}
-          className="absolute top-0 right-0 m-2 text-gray-500 focus:outline-none"
+          className="absolute top-2 right-2 w-24  bg-blue-500 text-white py-1 rounded-lg hover:bg-blue-300 transition duration-200"
         >
-          ...
+          Edit Post
         </button>
         {showMenu && (
           <div
