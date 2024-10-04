@@ -14,7 +14,7 @@ const friendSchema = new Schema({
     },
     isFriend:{
         type:Boolean,
-        default:false,
+        default:true,
     },
     created_at: {
         type: Date,

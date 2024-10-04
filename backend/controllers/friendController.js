@@ -25,7 +25,7 @@ const removeFriend = async (req, res) => {
 
     try {
         // Find and remove the friend relationship
-        const result = await Friend.findOneAndDelete({ user: userId, friend: friendId });
+        const result = await Friend.findOneAndUpdate({ user: userId, friend: friendId, isFriend:true },{isFriend:false},{new:true});
         
         if (!result) {
             return res.status(404).json({ message: "Friend relationship not found." });
@@ -42,7 +42,7 @@ const getFriendsList = async (req, res) => {
     const { userId } = req.params;
 
     try {
-        const friends = await Friend.find({ user: userId }).populate('friend', 'username email'); // Populate friend details
+        const friends = await Friend.find({ user: userId , isFriend:true }).populate('friend', 'username email'); // Populate friend details
 
         res.status(200).json({ friends });
     } catch (error) {

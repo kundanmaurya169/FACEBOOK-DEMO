@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchPosts } from '../../api/postApi.js'; 
-import { likePost, unlikePost } from '../../api/likeApi.js';
+import { likePost } from '../../api/likeApi.js';
 import { addComment, deleteComment } from '../../api/commentApi.js';
 import PostCard from '../../components/PostCard.jsx';
 
@@ -26,19 +26,11 @@ const Feed = () => {
 
   const handleLike = async (postId) => {
     try {
-      await likePost(postId);
-      setPosts(posts.map(post => post._id === postId ? { ...post, likesCount: post.likesCount + 1 } : post));
+    const response=  await likePost(postId);
+    const { isLiked } = response.data;
+      setPosts(posts.map(post => post._id === postId ? { ...post,isLiked } : post));
     } catch (err) {
       console.error("Error liking post: ", err);
-    }
-  };
-
-  const handleUnlike = async (postId) => {
-    try {
-      await unlikePost(postId);
-      setPosts(posts.map(post => post._id === postId ? { ...post, likesCount: post.likesCount - 1 } : post));
-    } catch (err) {
-      console.error("Error unliking post: ", err);
     }
   };
 
@@ -79,7 +71,7 @@ const Feed = () => {
   }
 
   return (
-    <div className="bg-gray-100 w-full">
+    <div className="bg-gray-300 w-full">
       <h1 className="text-2xl font-bold bg-slate-500 mb-4 text-center">Feed</h1>
       <div className="container mx-auto p-1 pt-3 md:p-6 lg:p-12">
         {posts.map(post => (
@@ -87,7 +79,6 @@ const Feed = () => {
             key={post._id}
             post={post}
             onLike={handleLike}
-            onUnlike={handleUnlike}
             onAddComment={handleAddComment}
             onDeleteComment={handleDeleteComment}
             refreshPosts={refreshPosts}

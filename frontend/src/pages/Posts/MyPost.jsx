@@ -52,13 +52,13 @@ const MyPost = ({ userId }) => {
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
-    <div className="p-4">
+    <div className="p-2 bg-slate-300">
       <div className="grid grid-cols-1  mt-4 md:grid-cols-2 lg:grid-cols-2 gap-4">
         {posts.length > 0 ? (
           posts.map((post) => (
             <div
               key={post._id}
-              className="bg-white shadow-md rounded-lg p-4 border border-gray-200"
+              className="bg-white shadow-md  p-3 border border-gray-200"
             >
               <UserPostCard key={post._id} post={post} onDelete={handleDelete} onUpdate={handleUpdate}/>
             </div>

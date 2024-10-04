@@ -11,6 +11,6 @@ router.post('/post/:postId/',auth, commentController.addComment);
 // Route to get all comments for a specific post
 router.get('/post/:postId/', commentController.getCommentsByPostId); // Corrected to use 'get'
 // Delete the comment by the user
-router.delete('/post/:postId/comment/:commentId',auth, commentController.deleteComment);
+router.patch('/post/:postId/comment/:commentId',auth, commentController.deleteComment);
 // Export the router
 module.exports = router;

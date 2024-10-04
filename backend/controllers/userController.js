@@ -14,7 +14,7 @@ exports.registerUser = async (req, res) => {
         }
 
         // Check if user already exists (and is not deleted)
-        const existingUser = await User.findOne({ email, isDeleted: false });
+        const existingUser = await User.findOne({ email:email.toLowerCase(), isDeleted: false });
         if (existingUser) {
             return res.status(400).json({ message: 'Email already exists' });
         }
@@ -24,7 +24,7 @@ exports.registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create and save the new user
-        const newUser = new User({ name, phone, email, password:hashedPassword });
+        const newUser = new User({ name, phone, email:email.toLowerCase(), password:hashedPassword });
         await newUser.save();
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
@@ -44,7 +44,7 @@ exports.loginUser = async (req, res) => {
 
     try {
         // Find user by email or phone
-        const user = await User.findOne({ email: login }, {isDeleted:false });
+        const user = await User.findOne({ email: login.toLowerCase() }, {isDeleted:false });
 
         if (!user) {
             return res.status(400).json({ message: 'Invalid login credentials.' });

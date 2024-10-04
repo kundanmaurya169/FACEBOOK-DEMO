@@ -22,7 +22,7 @@ export const addComment = async (postId, comment) => {
 // Delete comment
 export const deleteComment = async (commentId,postId) => {
     const token = localStorage.getItem('token'); // Get the token from localStorage
-    const response = await axios.delete(`${API_URL}/post/${postId}/comment/${commentId}`, {
+    const response = await axios.delete(`${API_URL}/post/${postId}/comment/${commentId}`,{isDeleted:true}, {
         headers: {
           'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,

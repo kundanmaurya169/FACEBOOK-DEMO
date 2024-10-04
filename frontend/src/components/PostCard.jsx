@@ -1,17 +1,16 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
-import { FaThumbsUp, FaComment } from "react-icons/fa"; // Import icons from react-icons
+import { AiFillLike, AiOutlineLike,AiOutlineComment } from 'react-icons/ai'; 
 
 const PostCard = ({
   post,
   onLike,
-  onUnlike,
   onAddComment,
   onDeleteComment,
   refreshPosts,
 }) => {
   const [isLiked, setIsLiked] = useState(post.isLiked || false);
-  const [likeCount, setLikeCount] = useState(post.likesCount || 0);
+  const [likeCount, setLikeCount] = useState(post.likes.length || 0);
   const [commentInput, setCommentInput] = useState("");
   const [comments, setComments] = useState(post.comments || []);
   const [showComments, setShowComments] = useState(false); // State to toggle comments
@@ -20,22 +19,22 @@ const PostCard = ({
     setComments(post.comments); // Update comments whenever the post changes
   }, [post.comments]);
 
-  const handleLikeUnlike = async (action) => {
+  const handleLikeUnlike = async () => {
     try {
-      if (action === "like" && !isLiked) {
-        await onLike(post._id); // Call the like API
-        setLikeCount((prevCount) => prevCount + 1); // Increment the like count
-        setIsLiked(true); // Mark as liked
-      } else if (action === "unlike" && isLiked) {
-        await onUnlike(post._id); // Call the unlike API
-        setLikeCount((prevCount) => prevCount - 1); // Decrement the like count
-        setIsLiked(false); // Mark as unliked
-      }
+        if (!isLiked) {
+            await onLike(post._id); // Call the like API
+            setLikeCount((prevCount) => prevCount + 1); // Increment the like count
+            setIsLiked(true); // Mark as liked
+        } else {
+            await onLike(post._id); // Call the unlike API
+            setLikeCount((prevCount) => prevCount - 1); // Decrement the like count
+            setIsLiked(false); // Mark as unliked
+        }
     } catch (error) {
-      alert("Failed to update like/unlike status.");
-      console.error(error);
+        alert("Failed to update like/unlike status.");
+        console.error(error);
     }
-  };
+};
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
@@ -104,21 +103,19 @@ const PostCard = ({
           alt="Post"
         />
       )}
-      <div className="mt-4 flex items-center">
-        <button
-          onClick={() => handleLikeUnlike("like")}
-          className="flex items-center bg-blue-500 text-white px-2 py-1 rounded"
-        >
-          <FaThumbsUp className="mr-1" />
-          {likeCount}
-        </button>
-        <button
-          onClick={toggleComments}
-          className="flex items-center ml-4 bg-blue-500 text-white px-2 py-1 rounded"
-        >
-          <FaComment className="mr-1" />
-          {comments.length}
-        </button>
+      <div className="mt-4 flex  items-center">
+      <button onClick={handleLikeUnlike} className="flex items-center space-x-2">
+      {isLiked ? <AiFillLike size={24} /> : <AiOutlineLike size={24} />}
+      {/* <span>{isLiked ? 'Unlike' : 'Like'}</span> */}
+      <span>({likeCount}) Likes</span>
+    </button>
+    <button
+        onClick={toggleComments}
+        className="flex items-center text-black px-2 py-1 rounded hover:bg-gray-200"
+      >
+        <AiOutlineComment size={24} className="mr-1" /> {/* Outline comment icon */}
+        <span>({comments?.length || 0}) Comments</span> {/* Display comment count */}
+      </button>
       </div>
       <div className="mt-4">
         {showComments && (

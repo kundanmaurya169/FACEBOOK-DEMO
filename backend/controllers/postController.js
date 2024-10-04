@@ -99,16 +99,12 @@ const getPostById = async (req, res) => {
                 select: 'name email' // Specify fields to return
             }
         });
+        
 
-    // Map through posts to add likesCount and commentsCount
-    const postsWithCounts = posts.map(post => ({
-        ...post.toObject(), // Convert Mongoose document to a plain JavaScript object
-        likesCount: post.likes.length, // Count the number of likes
-        commentsCount: post.comments.length, // Count the number of comments
-    }));
+
 
     // Return the retrieved posts with counts
-    res.status(200).json(postsWithCounts);
+    res.status(200).json(posts);
 } catch (error) {
     res.status(500).json({ error: error.message });
 }
